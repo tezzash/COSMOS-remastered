@@ -330,7 +330,11 @@ export class GpgpuCosmicFluid {
     const opacity = prologueW > 0.01 ? prologueW * 0.44 : 0;
 
     this.root.visible = opacity > 0.008 && !this.isSoftwareGl;
-    if (!this.root.visible) return;
+    if (!this.root.visible) {
+      // Re-seed from the singularity the next time the swarm becomes visible (e.g. on replay)
+      this.initialized = false;
+      return;
+    }
 
     if (Math.abs(anchorZ - this.activeAnchorZ) > 50) {
       this.activeAnchorZ = anchorZ;
