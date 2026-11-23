@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { SILENCE_END, SILENCE_START, clamp, smoothstep } from '../data/chapters';
+import { clamp, smoothstep } from '../data/chapters';
 
 const SIM_VERTEX_SHADER = /* glsl */ `
   varying vec2 vUv;
@@ -319,38 +319,15 @@ export class GpgpuCosmicFluid {
     pointerNdc: THREE.Vector2,
     audioBass: number,
   ): void {
-    // Active during Prologue Big Bang (0..54), Chapter IV Yin-Yang (222..286), and Final Convergence/Reveal (334..405)
+    // Active only during the Prologue Big Bang (0..54): Chapter IV and the finale are star-cluster
+    // and supernova scenes whose structure must not be overdrawn by the fluid swarm
     const prologueW = hasEntered
       ? smoothstep(6.0, 14.0, filmTime) * (1 - smoothstep(42.0, 56.0, filmTime))
       : 0.25;
-    const yinYangW =
-      smoothstep(222.0, 232.0, filmTime) * (1 - smoothstep(278.0, 287.0, filmTime));
-    const silenceDip =
-      smoothstep(SILENCE_START - 1.5, SILENCE_START + 0.3, filmTime) *
-      (1 - smoothstep(SILENCE_END, SILENCE_END + 1.8, filmTime));
-    const finalW = smoothstep(334.0, 344.0, filmTime) * (1 - silenceDip * 0.96);
-
-    let mode = 0;
-    let progress = 0;
-    let anchorZ = 0;
-    let opacity = 0;
-
-    if (finalW >= yinYangW && finalW >= prologueW && finalW > 0.01) {
-      mode = 2;
-      progress = clamp((filmTime - 335) / 50, 0, 1);
-      anchorZ = -515;
-      opacity = finalW * 0.42;
-    } else if (yinYangW >= prologueW && yinYangW > 0.01) {
-      mode = 1;
-      progress = clamp((filmTime - 225) / 60, 0, 1);
-      anchorZ = -340;
-      opacity = yinYangW * 0.38;
-    } else if (prologueW > 0.01) {
-      mode = 0;
-      progress = smoothstep(8.0, 44.0, filmTime);
-      anchorZ = 0;
-      opacity = prologueW * 0.44;
-    }
+    const mode = 0;
+    const progress = smoothstep(8.0, 44.0, filmTime);
+    const anchorZ = 0;
+    const opacity = prologueW > 0.01 ? prologueW * 0.44 : 0;
 
     this.root.visible = opacity > 0.008 && !this.isSoftwareGl;
     if (!this.root.visible) return;

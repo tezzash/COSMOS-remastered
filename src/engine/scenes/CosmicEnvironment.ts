@@ -665,7 +665,8 @@ export class CosmicEnvironment {
     this.guidingCore.scale.set(s, s, 1);
     this.guidingHalo.scale.set(s * 2.7, s * 2.7, 1);
 
-    const starVis = (hasEntered ? smoothstep(5.5, 11.0, filmTime) : 0) * (1 - quietHours);
+    // From Chapter IV on, each scene supplies its own focal star (cluster eyes, the house lamp, the dying star)
+    const starVis = (hasEntered ? smoothstep(5.5, 11.0, filmTime) : 0) * (1 - quietHours) * (1 - smoothstep(226.0, 231.0, filmTime));
     this.guidingCore.material.opacity = starVis * 0.85;
     this.guidingHalo.material.opacity = starVis * 0.34;
     this.guidingLight.intensity = starVis * 1.25;

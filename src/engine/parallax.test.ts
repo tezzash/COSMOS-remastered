@@ -126,11 +126,11 @@ test('dynamic exposure stays dark-cinema balanced and peripheral chromatic aberr
   // Chromatic aberration responds smoothly to camera dive velocity & gravitational lensing
   const slowCalm = computeCinemaOptics(76, 0, false);
   const fastDive = computeCinemaOptics(50, 14, false);
-  const portalLens = computeCinemaOptics(356, 2, false);
+  const singularityLens = computeCinemaOptics(8, 2, false);
   const reduced = computeCinemaOptics(50, 14, true);
 
   assert.ok(slowCalm.chromaticIntensity > 0.002 && slowCalm.chromaticIntensity < 0.006);
   assert.ok(fastDive.chromaticIntensity > slowCalm.chromaticIntensity);
-  assert.ok(portalLens.chromaticIntensity > slowCalm.chromaticIntensity);
+  assert.ok(singularityLens.chromaticIntensity > slowCalm.chromaticIntensity);
   assert.ok(reduced.chromaticIntensity < slowCalm.chromaticIntensity);
 });

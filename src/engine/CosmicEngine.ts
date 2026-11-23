@@ -174,7 +174,6 @@ export class CosmicEngine {
   private lastChapterIndex = 0;
   private chapterSeekWarpPulse = 0;
   private lastGravLensState: GravitationalLensState = computeChapterTransitionLens(0, 0);
-  private syncedRevealMilkyWay = false;
   private disposed = false;
 
   constructor(
@@ -267,8 +266,8 @@ export class CosmicEngine {
       this.revealSeq.root,
       this.nucleosynthesis.root,
     );
-    this.renderer.domElement.dataset.chapter4Visual = 'celestial-equilibrium-figure8';
-    this.renderer.domElement.dataset.figure8Particles = String(this.equilibriumSeq.curlParticleCount);
+    this.renderer.domElement.dataset.chapter4Visual = 'star-cluster-taijitu';
+    this.renderer.domElement.dataset.clusterStars = String(this.equilibriumSeq.starCount);
     this.renderer.domElement.dataset.cosmicDriftStars = String(this.cosmicDrift.starCount);
     this.renderer.domElement.dataset.nucleosynthesisParticles = String(
       this.nucleosynthesis.totalParticleCount,
@@ -712,14 +711,6 @@ export class CosmicEngine {
       (intensity) => this.callbacks.onNucleosynthesisBurst?.(intensity),
     );
 
-    // Share loaded 4K Milky Way texture with Final Convergence geodesic black hole
-    if (!this.syncedRevealMilkyWay) {
-      const mwTex = this.cosmicEnv.getMilkyWayTexture();
-      if (mwTex) {
-        this.revealSeq.setMilkyWayTexture(mwTex);
-        this.syncedRevealMilkyWay = true;
-      }
-    }
 
     // Update 100k+ GPGPU ping-pong fluid simulation with cursor & live audio bass
     const audioBass = this.callbacks.getAudioBass ? this.callbacks.getAudioBass() : 0;
@@ -856,9 +847,9 @@ export class CosmicEngine {
       _projWorldPos.copy(this.cosmicEnv.guidingStar.position);
     }
     _projWorldPos.project(this.camera);
-    // The anchor star is hidden through Chapter V's night, so its flare must not linger there either
-    const quietHoursNight = this.filmTime > 289 && this.filmTime < 335;
-    const inFront = _projWorldPos.z < 1.0 && !quietHoursNight;
+    // The anchor star is hidden from Chapter IV through Chapter V, so its flare must not linger there either
+    const anchorHidden = this.filmTime > 228 && this.filmTime < 335;
+    const inFront = _projWorldPos.z < 1.0 && !anchorHidden;
     (uCinema.uFlareCenter.value as THREE.Vector2).set(
       inFront ? _projWorldPos.x * 0.5 + 0.5 : -2.0,
       inFront ? _projWorldPos.y * 0.5 + 0.5 : -2.0,

@@ -42,9 +42,9 @@ const KEYFRAMES: CameraKeyframe[] = [
   { t: 224, pos: [0, 2.5, -280], look: [0, 0, -340], fov: 50 },
 
   // CHAPTER IV (225..285): Two cosmic forces orbiting into monumental 3D Yin-Yang
-  { t: 236, pos: [18, 6.5, -304], look: [0, 0, -340], fov: 48 },
-  { t: 254, pos: [-16, 4.5, -308], look: [0, 0, -340], fov: 47 },
-  { t: 270, pos: [0.5, 12.5, -304], look: [0, 0, -340], fov: 46 },
+  { t: 236, pos: [12, 4.0, -301], look: [0, -1.2, -340], fov: 48 },
+  { t: 254, pos: [-9, 3.0, -303], look: [0, -1.4, -340], fov: 47 },
+  { t: 270, pos: [0.5, 5.0, -301], look: [0, -1.4, -340], fov: 46 },
   { t: 282, pos: [0, 3.0, -366], look: [0, -1.0, -425], fov: 46 },
 
   // CHAPTER V (285..335): Quiet hours — slow descent to peaceful planet & softly lit window

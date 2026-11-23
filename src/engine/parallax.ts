@@ -188,13 +188,11 @@ export function computeCinemaOptics(
 ): CinemaOpticsParams {
   const t = clamp(filmTime, 0, 405);
 
-  // Relativistic gravitational lensing around Prologue singularity & Final convergence
+  // Relativistic gravitational lensing around the Prologue singularity only (a star does not visibly lens)
   const prologueLens =
     smoothstep(1.5, 9.0, t) * (1 - smoothstep(26.0, 42.0, t)) * 0.78;
-  const convergenceLens =
-    smoothstep(336.0, 354.0, t) * (1 - smoothstep(363.0, SILENCE_START + 0.4, t)) * 0.92;
   const lensStrength = clamp(
-    Math.max(prologueLens, convergenceLens) * (reducedMotion ? 0.45 : 1.0),
+    prologueLens * (reducedMotion ? 0.45 : 1.0),
     0,
     1,
   );
@@ -208,9 +206,9 @@ export function computeCinemaOptics(
     [104, 0.12],
     [145, 0.14], // Constellation figure heart star
     [200, 0.18], // Network anchor
-    [255, 0.16], // Yin-Yang bridge star
+    [255, 0.08], // Star-cluster taijitu (no central point source)
     [310, 0.08], // Quiet sanctuary (minimal optical artifacts)
-    [360, 0.28], // Convergence portal
+    [360, 0.2], // Dying red supergiant
     [SILENCE_START + 1.0, 0.18], // Pure solitary star
     [SILENCE_END + 1.2, 0.68], // Supernova anamorphic sweep
     [382, 0.22],
