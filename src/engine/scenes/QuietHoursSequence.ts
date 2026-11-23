@@ -151,6 +151,7 @@ export class QuietHoursSequence {
   private readonly headPivot = new THREE.Group();
   private readonly armPivot = new THREE.Group();
   private readonly fireflies: THREE.Points;
+  private readonly diveClouds: THREE.Sprite[] = [];
   private readonly disposables: Array<{ dispose: () => void }> = [];
 
   constructor(maxAnisotropy: number) {
@@ -306,6 +307,37 @@ export class QuietHoursSequence {
     const invRot = new THREE.Quaternion().setFromEuler(this.earth.rotation).invert();
     this.beacon.position.copy(beaconWorldDir.applyQuaternion(invRot).multiplyScalar(PLANET_RADIUS * 1.004));
     this.earth.add(this.beacon);
+
+    // 6b. Descent through the night: moonlit cloud wisps, underlit amber by the town, stream past the
+    // lens while the camera dives from orbit toward the one light still on (bridges the two shots).
+    const cloudTex = createSoftGlowTexture('#c9d4f2', '#4c5c86', 'rgba(0,0,0,0)', 128);
+    const cityTex = createSoftGlowTexture('#ffd9a0', '#c46a2a', 'rgba(0,0,0,0)', 128);
+    this.disposables.push(cloudTex, cityTex);
+    const diveA = new THREE.Vector3(1.8, 3.0, 21);
+    const diveB = new THREE.Vector3(0.2, 0.4, 12.5);
+    for (let i = 0; i < 18; i++) {
+      const warm = i % 3 === 0;
+      const mat = new THREE.SpriteMaterial({
+        map: warm ? cityTex : cloudTex,
+        transparent: true,
+        depthWrite: false,
+        depthTest: false,
+        blending: THREE.AdditiveBlending,
+        opacity: 0,
+      });
+      this.disposables.push(mat);
+      const sprite = new THREE.Sprite(mat);
+      const f = (i + 0.5) / 18;
+      const side = i % 2 === 0 ? 1 : -1;
+      sprite.position.lerpVectors(diveA, diveB, f);
+      sprite.position.x += side * (0.7 + ((i * 37) % 11) / 8);
+      sprite.position.y += (((i * 53) % 9) / 9 - 0.5) * 1.6 - (warm ? 0.6 : 0);
+      const sc = warm ? 0.9 + ((i * 17) % 5) / 6 : 1.8 + ((i * 29) % 7) / 3;
+      sprite.scale.set(sc * 1.8, sc, 1);
+      sprite.userData.base = warm ? 0.32 : 0.2;
+      this.root.add(sprite);
+      this.diveClouds.push(sprite);
+    }
 
     // 7. Ground-level sanctuary: the one light still on. A cottage on a moonlit hill, a warm
     // window, and a person at a desk who slowly learns to stop, look up, and rest.
@@ -670,8 +702,15 @@ export class QuietHoursSequence {
     this.sunDir.lerpVectors(SUN_NIGHT, SUN_DAWN, dawn).normalize();
 
     // Shot 1 (285..303): the night side from orbit. Shot 2 (302..335): down to the one light still on.
-    const orbitVis = 1 - smoothstep(300.8, 303.6, filmTime);
-    const groundVis = smoothstep(302.2, 305.8, filmTime);
+    const orbitVis = 1 - smoothstep(301.2, 304.0, filmTime);
+    const groundVis = smoothstep(301.0, 304.6, filmTime);
+
+    const descent = smoothstep(298.6, 300.8, filmTime) * (1 - smoothstep(303.4, 305.2, filmTime)) * weight;
+    for (let i = 0; i < this.diveClouds.length; i++) {
+      const c = this.diveClouds[i];
+      c.visible = descent > 0.004;
+      c.material.opacity = descent * (c.userData.base as number);
+    }
     this.orbitGroup.visible = orbitVis > 0.004;
     this.groundGroup.visible = groundVis > 0.004;
     this.earthMat.depthWrite = orbitVis > 0.98;

@@ -605,9 +605,15 @@ export class CosmicEnvironment {
       (mat.uniforms.uLightDir.value as THREE.Vector2).set(lx, ly);
     }
 
+    // Chapter V is a night sky seen from Earth: no anchor-star 'sun' and no galaxy clutter beside the Moon
+    const quietHours = smoothstep(286.5, 292.5, filmTime) * (1 - smoothstep(333.5, 338.5, filmTime));
+
     for (let i = 0; i < this.galaxies.length; i++) {
       const g = this.galaxies[i];
       g.rotation.y += delta * (g.userData.spinRate as number);
+      if (quietHours > 0) {
+        (g.material as THREE.ShaderMaterial).uniforms.uOpacity.value *= 1 - quietHours;
+      }
     }
 
     // Update Prologue Geodesic Raymarched Singularity & Curl-Noise Big Bang
@@ -659,7 +665,7 @@ export class CosmicEnvironment {
     this.guidingCore.scale.set(s, s, 1);
     this.guidingHalo.scale.set(s * 2.7, s * 2.7, 1);
 
-    const starVis = hasEntered ? smoothstep(5.5, 11.0, filmTime) : 0;
+    const starVis = (hasEntered ? smoothstep(5.5, 11.0, filmTime) : 0) * (1 - quietHours);
     this.guidingCore.material.opacity = starVis * 0.85;
     this.guidingHalo.material.opacity = starVis * 0.34;
     this.guidingLight.intensity = starVis * 1.25;

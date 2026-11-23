@@ -89,6 +89,17 @@ function catmullRom(
   return out.set(c(0), c(1), c(2));
 }
 
+// Keyframes are framed for 16:9. On narrower screens (portrait phones) widen the vertical FOV
+// so most of the 16:9 horizontal framing survives instead of cropping subjects off the sides.
+const REFERENCE_ASPECT = 16 / 9;
+function adaptFovToAspect(fov: number, aspect: number): number {
+  if (!(aspect > 0) || aspect >= REFERENCE_ASPECT) return fov;
+  const halfV = THREE.MathUtils.degToRad(fov) / 2;
+  const halfH = Math.atan(Math.tan(halfV) * REFERENCE_ASPECT);
+  const widened = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(halfH) / aspect));
+  return Math.min(THREE.MathUtils.lerp(fov, widened, 0.8), 92);
+}
+
 export class CameraDirector {
   private initialized = false;
   private pointerX = 0;
@@ -149,7 +160,7 @@ export class CameraDirector {
     _desiredPos.x += this.smoothPtrX * parallaxScale;
     _desiredPos.y += this.smoothPtrY * parallaxScale * 0.65;
 
-    const targetFov = THREE.MathUtils.lerp(k0.fov, k1.fov, localT);
+    const targetFov = adaptFovToAspect(THREE.MathUtils.lerp(k0.fov, k1.fov, localT), camera.aspect);
 
     if (!this.initialized || reducedMotion) {
       camera.position.copy(_desiredPos);

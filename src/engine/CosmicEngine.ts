@@ -856,7 +856,9 @@ export class CosmicEngine {
       _projWorldPos.copy(this.cosmicEnv.guidingStar.position);
     }
     _projWorldPos.project(this.camera);
-    const inFront = _projWorldPos.z < 1.0;
+    // The anchor star is hidden through Chapter V's night, so its flare must not linger there either
+    const quietHoursNight = this.filmTime > 289 && this.filmTime < 335;
+    const inFront = _projWorldPos.z < 1.0 && !quietHoursNight;
     (uCinema.uFlareCenter.value as THREE.Vector2).set(
       inFront ? _projWorldPos.x * 0.5 + 0.5 : -2.0,
       inFront ? _projWorldPos.y * 0.5 + 0.5 : -2.0,
